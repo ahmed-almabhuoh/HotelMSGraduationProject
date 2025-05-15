@@ -31,7 +31,16 @@ class AuthController extends Controller
             $request->validate([
                 'name' => 'required|string|max:191',
                 'email' => 'required|email|max:191|unique:users,email',
-                'password' => 'required|string|min:8|confirmed',
+                'password' => [
+                    'required',
+                    'string',
+                    RulesPassword::min(8)
+                        ->mixedCase()
+                        ->numbers()
+                        ->symbols()
+                        ->uncompromised(),
+                    'confirmed'
+                ],
             ], [
                 'name.required' => __('The name field is required.'),
                 'email.required' => __('The email field is required.'),
