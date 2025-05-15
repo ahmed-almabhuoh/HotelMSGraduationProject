@@ -12,6 +12,7 @@ Route::prefix('auth')->middleware(['guest:api', 'throttle:2,1'])->group(function
 
     // Route::middleware('throttle:2,1')->group(function () {
     Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('forgot-email', [ProfileController::class, 'forgetEmail']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
     // });
 });

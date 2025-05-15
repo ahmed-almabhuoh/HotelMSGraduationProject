@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class ProfileController extends Controller
 {
@@ -17,6 +19,42 @@ class ProfileController extends Controller
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
+    }
+
+    public function forgetEmail(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'min:2', 'max:45', 'regex:/^[\p{L}\s-]+$/u'],
+            'password' => ['required', 'string'],
+        ], [
+            'name.required' => __('The name field is required.'),
+            'name.regex' => __('The name may only contain letters, spaces, and hyphens.'),
+            'password.required' => __('The password field is required.'),
+        ]);
+
+        try {
+            $user = $this->userService->findUserByName($request->name);
+
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => __('Invalid credentials provided.'),
+                    'errors' => ['credentials' => __('The provided name or password is incorrect.')]
+                ], 422);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => __('Your email is:') . ' ' . $user->email,
+                'data' => null
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => config('app.env') === 'local' ? $e->getMessage() : __('An error occurred while processing the password reset request.'),
+                'errors' => []
+            ], 500);
+        }
     }
 
     public function getProfile()

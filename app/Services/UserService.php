@@ -23,4 +23,9 @@ class UserService
             'updated_at' => now(),
         ]);
     }
+
+    public function findUserByName(string $name): ?User
+    {
+        return User::where('name', $name)->first();
+    }
 }
