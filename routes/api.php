@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,8 +17,11 @@ Route::prefix('auth')->middleware(['guest:api', 'throttle:2,1'])->group(function
 });
 
 Route::middleware(['auth:api'])->group(function () {
-    Route::get('profile', [AuthController::class, 'getProfile']);
-    Route::put('profile', [AuthController::class, 'updateProfile']);
+    Route::prefix('profile')->middleware(['throttle:10,1'])->group(function () {
+        Route::get('/', [ProfileController::class, 'getProfile']);
+        Route::put('/', [ProfileController::class, 'updateProfile']);
+    });
+
 
     Route::post('change-password', [AuthController::class, 'changePassword'])->middleware(['throttle:4,1']);
     Route::post('logout', [AuthController::class, 'logout']);

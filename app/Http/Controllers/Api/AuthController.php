@@ -264,43 +264,4 @@ class AuthController extends Controller
             ], 500);
         }
     }
-
-    public function getProfile()
-    {
-        $user = User::find(auth()->id());
-
-        return response()->json([
-            'status' => true,
-            'message' => __('Profile returned successfully'),
-            'data' => $user,
-        ], 200);
-    }
-
-    public function updateProfile(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|min:2|max:45',
-            'email' => 'required|string|min:8|confirmed',
-        ], [
-            'name.required' => __('The name field is required.'),
-            'email.required' => __('The email field is required.'),
-        ]);
-
-        try {
-            User::where('id', auth()->id())->update([
-                'name' => $request->post('name'),
-                'email' => $request->post('email'),
-            ]);
-
-            return response()->json([
-                'status' => true,
-                'message' => __('Profile updated successful'),
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => config('app.env') == 'local' ? $e->getMessage() : __('Server Error'),
-            ], 500);
-        }
-    }
 }

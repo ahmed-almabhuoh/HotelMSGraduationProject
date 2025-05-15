@@ -14,4 +14,13 @@ class UserService
             'password_changed_at' => now(),
         ]);
     }
+
+    public function updateProfile(User $user, array $data): void
+    {
+        $user->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'updated_at' => now(),
+        ]);
+    }
 }
