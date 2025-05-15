@@ -7,6 +7,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -111,5 +112,85 @@ class AuthController extends Controller
                 'message' => config('app.env') == 'local' ? $e->getMessage() : __('Server Error'),
             ], 500);
         }
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|max:191',
+        ], [
+            'email.required' => __('The email field is required.'),
+            'email.email' => __('The email must be a valid email address.'),
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || $user->is_admin) {
+            throw ValidationException::withMessages([
+                'email' => [__('Invalid email or user is an admin.')],
+            ]);
+        }
+
+        // Generate a raw token
+        $token = \Illuminate\Support\Str::random(64);
+
+        // Store hashed token in password_reset_tokens
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => Hash::make($token),
+                'created_at' => now(),
+            ]
+        );
+
+        // Trigger notification
+        $user->notify(new \App\Notifications\ResetPassword($token));
+
+        return response()->json([
+            'message' => __('Password reset token generated'),
+            'token' => $token, // For API testing; remove in production with email
+        ], 200);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|max:191',
+            'token' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'email.required' => __('The email field is required.'),
+            'email.email' => __('The email must be a valid email address.'),
+            'token.required' => __('The token field is required.'),
+            'password.required' => __('The password field is required.'),
+            'password.min' => __('The password must be at least 8 characters.'),
+            'password.confirmed' => __('The password confirmation does not match.'),
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'token', 'password', 'password_confirmation'),
+            function ($user, $password) {
+                if ($user->is_admin) {
+                    throw ValidationException::withMessages([
+                        'email' => [__('Invalid email or user is an admin.')],
+                    ]);
+                }
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ])->save();
+                $user->tokens()->delete();
+                Log::info('Password reset', ['user_id' => $user->id, 'email' => $user->email, 'locale' => app()->getLocale()]);
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json([
+                'message' => __('Password reset successful'),
+            ], 200);
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [__('Invalid token or email.')],
+        ]);
     }
 }

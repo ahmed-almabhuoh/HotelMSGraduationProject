@@ -11,5 +11,10 @@
     "The email must be a valid email address.": "The email must be a valid email address.",
     "The email has already been taken.": "The email has already been taken.",
     "The password confirmation does not match.": "The password confirmation does not match.",
-    "Server Error": "Server Error"
+    "Server Error": "Server Error",
+    "Password reset token generated": "Password reset token generated",
+    "Invalid email or user is an admin.": "Invalid email or user is an admin.",
+    "Password reset successful": "Password reset successful",
+    "Invalid token or email.": "Invalid token or email.",
+    "The token field is required.": "The token field is required."
 }
