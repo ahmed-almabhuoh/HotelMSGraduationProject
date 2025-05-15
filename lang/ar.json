@@ -1,0 +1,6 @@
+{
+    "Invalid credentials or user is an admin.": "بيانات الاعتماد غير صالحة أو المستخدم هو مسؤول.",
+    "Login successful": "تم تسجيل الدخول بنجاح.",
+    "Admin users cannot use this endpoint": "لا يمكن للمستخدمين الإداريين استخدام هذه الواجهة.",
+    "Logged out successfully": "تم تسجيل الخروج بنجاح."
+}

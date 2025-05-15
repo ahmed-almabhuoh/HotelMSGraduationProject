@@ -1,0 +1,6 @@
+{
+    "Invalid credentials or user is an admin.": "Invalid credentials or user is an admin.",
+    "Login successful": "Login successful.",
+    "Admin users cannot use this endpoint": "Admin users cannot use this endpoint.",
+    "Logged out successfully": "Logged out successfully."
+}

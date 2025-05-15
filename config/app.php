@@ -123,4 +123,11 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /**
+     * Software Languages: Arabic => ar, English => en
+     */
+    'available_locales' => [
+        'en',
+        'ar'
+    ],
 ];
