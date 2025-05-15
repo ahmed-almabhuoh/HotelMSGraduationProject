@@ -4,15 +4,26 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\UserService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password as RulesPassword;
 use Illuminate\Validation\ValidationException;
+// use Illuminate\Validation\Rules\Password as PasswordValidation;
 
 class AuthController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function register(Request $request)
     {
         try {
@@ -185,6 +196,7 @@ class AuthController extends Controller
 
         if ($status === Password::PASSWORD_RESET) {
             return response()->json([
+                'status' => true,
                 'message' => __('Password reset successful'),
             ], 200);
         }
@@ -192,5 +204,103 @@ class AuthController extends Controller
         throw ValidationException::withMessages([
             'email' => [__('Invalid token or email.')],
         ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => [
+                'required',
+                'string',
+                RulesPassword::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+                'confirmed'
+            ],
+        ], [
+            'current_password.required' => __('The current password field is required.'),
+            'password.required' => __('The new password field is required.'),
+            'password.min' => __('The new password must be at least 8 characters.'),
+            'password.confirmed' => __('The new password confirmation does not match.'),
+            'password.mixed_case' => __('The new password must contain both uppercase and lowercase letters.'),
+            'password.numbers' => __('The new password must contain at least one number.'),
+            'password.symbols' => __('The new password must contain at least one special character.'),
+            'password.uncompromised' => __('The new password has been compromised in a data breach.'),
+        ]);
+
+        try {
+            $user = auth()->user();
+
+            // Verify current password
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => __('Current password is incorrect.'),
+                    'errors' => ['current_password' => __('Current password is incorrect.')]
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            $this->userService->updatePassword($user, $request->password);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => __('Password changed successfully.'),
+                'data' => null
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => config('app.env') === 'local' ? $e->getMessage() : __('An error occurred while changing the password.'),
+                'errors' => []
+            ], 500);
+        }
+    }
+
+    public function getProfile()
+    {
+        $user = User::find(auth()->id());
+
+        return response()->json([
+            'status' => true,
+            'message' => __('Profile returned successfully'),
+            'data' => $user,
+        ], 200);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|min:2|max:45',
+            'email' => 'required|string|min:8|confirmed',
+        ], [
+            'name.required' => __('The name field is required.'),
+            'email.required' => __('The email field is required.'),
+        ]);
+
+        try {
+            User::where('id', auth()->id())->update([
+                'name' => $request->post('name'),
+                'email' => $request->post('email'),
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => __('Profile updated successful'),
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => config('app.env') == 'local' ? $e->getMessage() : __('Server Error'),
+            ], 500);
+        }
     }
 }
