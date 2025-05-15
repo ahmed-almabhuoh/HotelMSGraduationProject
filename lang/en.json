@@ -2,5 +2,14 @@
     "Invalid credentials or user is an admin.": "Invalid credentials or user is an admin.",
     "Login successful": "Login successful.",
     "Admin users cannot use this endpoint": "Admin users cannot use this endpoint.",
-    "Logged out successfully": "Logged out successfully."
+    "Logged out successfully": "Logged out successfully.",
+    "The email field is required.": "The email field is required.",
+    "The password field is required.": "The password field is required.",
+    "The password must be at least 8 characters.": "The password must be at least 8 characters.",
+    "Registration successful": "Registration successful",
+    "The name field is required.": "The name field is required.",
+    "The email must be a valid email address.": "The email must be a valid email address.",
+    "The email has already been taken.": "The email has already been taken.",
+    "The password confirmation does not match.": "The password confirmation does not match.",
+    "Server Error": "Server Error"
 }
