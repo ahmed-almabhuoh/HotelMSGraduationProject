@@ -83,12 +83,19 @@ class ProfileController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:45', 'regex:/^[\p{L}\s-]+$/u'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . auth()->id()],
+            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^\+?[1-9]\d{1,14}$/'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ], [
             'name.required' => __('The name field is required.'),
             'name.regex' => __('The name may only contain letters, spaces, and hyphens.'),
             'email.required' => __('The email field is required.'),
             'email.email' => __('The email must be a valid email address.'),
             'email.unique' => __('The email has already been taken.'),
+            'mobile.regex' => __('The mobile number must be a valid phone number.'),
+            'mobile.max' => __('The mobile number may not be greater than 20 characters.'),
+            'image.image' => __('The file must be an image.'),
+            'image.mimes' => __('The image must be a file of type: jpeg, png, jpg, gif.'),
+            'image.max' => __('The image may not be greater than 2MB.'),
         ]);
 
         try {
@@ -96,10 +103,7 @@ class ProfileController extends Controller
 
             DB::beginTransaction();
 
-            $this->userService->updateProfile($user, [
-                'name' => $request->name,
-                'email' => $request->email,
-            ]);
+            $this->userService->updateProfile($user, $request->only(['name', 'email', 'mobile', 'image']));
 
             DB::commit();
 
@@ -114,7 +118,7 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => config('app.env') === 'local' ? $e->getMessage() : __('An error occurred while updating the profile.'),
-                'errors' => []
+                'errors' => [],
             ], 500);
         }
     }

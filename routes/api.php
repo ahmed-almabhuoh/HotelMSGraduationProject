@@ -20,7 +20,7 @@ Route::get('/email/verify/{id}/{hash}', [ProfileController::class, 'verifyEmail'
 Route::middleware(['auth:api', 'verified'])->group(function () {
     Route::prefix('profile')->middleware(['throttle:10,1'])->group(function () {
         Route::get('/', [ProfileController::class, 'getProfile']);
-        Route::put('/', [ProfileController::class, 'updateProfile']);
+        Route::post('/', [ProfileController::class, 'updateProfile']);
     });
 
     Route::post('change-password', [AuthController::class, 'changePassword'])->middleware(['throttle:4,1']);
