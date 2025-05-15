@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\UserResource;
+use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
@@ -113,6 +115,54 @@ class ProfileController extends Controller
                 'status' => false,
                 'message' => config('app.env') === 'local' ? $e->getMessage() : __('An error occurred while updating the profile.'),
                 'errors' => []
+            ], 500);
+        }
+    }
+
+    public function verifyEmail(Request $request, $id, $hash)
+    {
+        try {
+            $user = User::findOrFail($id);
+
+            if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+                return response()->json([
+                    'status' => false,
+                    'message' => __('Invalid verification link.'),
+                    'errors' => ['verification' => __('The verification link is invalid.')],
+                ], 422);
+            }
+
+            if ($user->hasVerifiedEmail()) {
+                return response()->json([
+                    'status' => true,
+                    'message' => __('Email already verified.'),
+                    'data' => new UserResource($user),
+                ], 200);
+            }
+
+            if ($user->markEmailAsVerified()) {
+                event(new Verified($user));
+            }
+
+            Log::info('Email verified successfully for user ID: ' . $user->id, [
+                'email' => $user->email,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => __('Email verified successfully.'),
+                'data' => new UserResource($user),
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Email verification failed for user ID: ' . $id, [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => config('app.env') === 'local' ? $e->getMessage() : __('An error occurred during email verification.'),
+                'errors' => [],
             ], 500);
         }
     }

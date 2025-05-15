@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\VerifyEmailNotification;
 use App\Services\UserService;
 use Exception;
 use Illuminate\Http\Request;
@@ -49,6 +50,9 @@ class AuthController extends Controller
             ]);
 
             $token = $user->createToken('user-auth')->plainTextToken;
+
+            // Send email verification notification
+            $user->notify(new VerifyEmailNotification());
 
             return response()->json([
                 'status' => true,
