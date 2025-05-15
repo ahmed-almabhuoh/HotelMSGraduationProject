@@ -16,8 +16,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-        User::create([
+     // Users
+        $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@hotel.com',
             'password' => Hash::make('password'),
@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
         // API Client
         $apiClient = ApiClient::create([
             'name' => 'External System',
+            'description' => 'Booking system for external partner.',
             'is_active' => true,
             'permissions' => ['rooms.index', 'bookings.store'],
         ]);

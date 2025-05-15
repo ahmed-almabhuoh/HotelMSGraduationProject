@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('api_clients', function (Blueprint $table) {
-            $table->id();
+          $table->id();
             $table->string('name')->unique();
+            $table->text('description')->nullable();
             $table->string('token')->unique()->nullable();
             $table->boolean('is_active')->default(true);
-            $table->json('permissions')->nullable(); // Store allowed endpoints
+            $table->json('permissions')->nullable();
             $table->timestamps();
         });
     }
