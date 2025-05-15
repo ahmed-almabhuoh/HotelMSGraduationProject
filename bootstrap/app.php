@@ -26,10 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // API middleware group
         $middleware->group('api', [
-            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             // 'throttle:api',
-            // \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            'log.api', // Apply logging globally to API routes
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // 'log.api', // Apply logging globally to API routes
             SetLocaleFromAcceptLanguage::class,
 
         ]);
