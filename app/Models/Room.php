@@ -23,4 +23,9 @@ class Room extends Model
         'is_available' => 'boolean',
         'price_per_night' => 'decimal:2',
     ];
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }
