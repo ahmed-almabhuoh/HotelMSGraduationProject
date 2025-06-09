@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RoomBookingController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,7 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
     });
 
     Route::post('create-checkout-session', [StripeController::class, 'createCheckoutSession']);
+    Route::post('stripe/webhook', [StripeWebhookController::class, 'handle']);
 
     Route::post('change-password', [AuthController::class, 'changePassword'])->middleware(['throttle:4,1']);
     Route::post('logout', [AuthController::class, 'logout']);

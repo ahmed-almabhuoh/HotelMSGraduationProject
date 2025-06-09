@@ -101,6 +101,9 @@ class RoomBookingController extends Controller
             $amountInDollars = $booking->total_price ?? 100; // default fallback
             $session = Session::create([
                 'payment_method_types' => ['card'],
+                'metadata' => [
+                    'booking_reference' => $booking['booking_reference'],
+                ],
                 'line_items' => [[
                     'price_data' => [
                         'currency' => 'usd',
@@ -112,8 +115,8 @@ class RoomBookingController extends Controller
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => url('/payment-success?booking=' . $booking['booking_reference']),
-                'cancel_url' => url('/payment-cancelled?booking=' . $booking['booking_reference']),
+                'success_url' => route('payment.success') . '?booking=' . $booking['booking_reference'],
+                'cancel_url' => route('payment.cancel') . '?booking=' . $booking['booking_reference'],
             ]);
 
             // Optionally save the session ID or URL to the booking record
