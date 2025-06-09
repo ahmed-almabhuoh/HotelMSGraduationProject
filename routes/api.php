@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RoomBookingController;
+use App\Http\Controllers\StripeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,8 @@ Route::middleware(['auth:api', 'verified'])->group(function () {
         Route::put('{bookingReference}', [BookingController::class, 'update']);
         Route::delete('{bookingReference}', [BookingController::class, 'destroy']);
     });
+
+    Route::post('create-checkout-session', [StripeController::class, 'createCheckoutSession']);
 
     Route::post('change-password', [AuthController::class, 'changePassword'])->middleware(['throttle:4,1']);
     Route::post('logout', [AuthController::class, 'logout']);

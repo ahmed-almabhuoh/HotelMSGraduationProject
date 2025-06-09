@@ -99,10 +99,10 @@ class RoomBookingService
             'check_in_date' => $checkIn,
             'check_out_date' => $checkOut,
             'total_price' => $totalPrice,
-            'status' => 'confirmed',
+            'status' => 'pending',
         ]);
 
-        $room->update(['is_available' => false]);
+        // $room->update(['is_available' => false]);
 
         return $booking;
     }
