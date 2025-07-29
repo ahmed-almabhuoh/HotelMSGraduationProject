@@ -143,7 +143,7 @@ class RoomBookingService
     {
         try {
             $booking = Booking::where('booking_reference', $bookingReference)
-                ->where('status', 'confirmed')
+                // ->where('status', 'confirmed')
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new \Exception('Booking not found or not confirmed.');
