@@ -193,15 +193,15 @@ class RoomBookingService
     {
         try {
             $booking = Booking::where('booking_reference', $bookingReference)
-                ->where('status', 'confirmed')
+                // ->where('status', 'confirmed')
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new \Exception('Booking not found or not confirmed.');
         }
 
-        if (Carbon::parse($booking->check_in_date)->isPast()) {
-            throw new \Exception('Cannot cancel past bookings.');
-        }
+        // if (Carbon::parse($booking->check_in_date)->isPast()) {
+        //     throw new \Exception('Cannot cancel past bookings.');
+        // }
 
         $booking->update(['status' => 'cancelled']);
         $booking->room->update(['is_available' => true]);
