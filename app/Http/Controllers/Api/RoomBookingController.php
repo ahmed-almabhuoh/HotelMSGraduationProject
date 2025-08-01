@@ -131,4 +131,5 @@ class RoomBookingController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+    // For Test
 }
